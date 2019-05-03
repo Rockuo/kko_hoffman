@@ -7,35 +7,35 @@ do
 
 echo "${name}:"
 echo "  encode"
-./huff_codec -w 512 -c -h static -i "./data/${name}.raw" -o "./data/encoded/${name}.huff"
+time ./huff_codec -w 512 -c -h static -i "./data/${name}.raw" -o "./data/encoded/${name}.huff"
 echo "  dencode"
-./huff_codec -w 512 -d -h static -i "./data/encoded/${name}.huff" -o "./data/out/${name}.raw"
+time ./huff_codec  -d -h static -i "./data/encoded/${name}.huff" -o "./data/out/${name}.raw"
 echo "  diff"
 diff "./data/out/${name}.raw" "./data/${name}.raw"
 
 
 echo "  encode m"
-./huff_codec -w 512 -c -h static -i "./data/${name}.raw" -o "./data/encoded/${name}m.huff" -m
+time ./huff_codec -w 512 -c -h static -i "./data/${name}.raw" -o "./data/encoded/${name}m.huff" -m
 echo "  dencode m"
-./huff_codec -w 512 -d -h static -i "./data/encoded/${name}m.huff" -o "./data/out/${name}m.raw" -m
+time ./huff_codec -w 512 -d -h static -i "./data/encoded/${name}m.huff" -o "./data/out/${name}m.raw" -m
 echo "  diff"
 diff "./data/out/${name}m.raw" "./data/${name}.raw"
 
 
 
 echo "  encode a"
-./huff_codec -w 512 -c -h adaptive -i "./data/${name}.raw" -o "./data/encoded/${name}a.huff"
+time ./huff_codec -w 512 -c -h adaptive -i "./data/${name}.raw" -o "./data/encoded/${name}a.huff"
 echo "  dencode a"
-./huff_codec -w 512 -d -h adaptive -i "./data/encoded/${name}a.huff" -o "./data/out/${name}a.raw"
+time ./huff_codec -w 512 -d -h adaptive -i "./data/encoded/${name}a.huff" -o "./data/out/${name}a.raw"
 echo "  diff"
 diff "./data/out/${name}a.raw" "./data/${name}.raw"
 
 
 
 echo "  encode am"
-./huff_codec -w 512 -c -h adaptive -i "./data/${name}.raw" -o "./data/encoded/${name}am.huff" -m
+time ./huff_codec -w 512 -c -h adaptive -i "./data/${name}.raw" -o "./data/encoded/${name}am.huff" -m
 echo "  dencode am"
-./huff_codec -w 512 -d -h adaptive -i "./data/encoded/${name}am.huff" -o "./data/out/${name}am.raw" -m
+time ./huff_codec -w 512 -d -h adaptive -i "./data/encoded/${name}am.huff" -o "./data/out/${name}am.raw" -m
 echo "  diff"
 diff "./data/out/${name}am.raw" "./data/${name}.raw"
 

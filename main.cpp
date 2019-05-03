@@ -1,3 +1,7 @@
+/**
+ * Richard Bureš (xbures29)
+ * Hlavní soubor - zpracuje argumenty, spustí požadovanou akci
+ */
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -16,8 +20,11 @@
 
 using namespace std;
 
+/**
+ * struktura argumentů
+ */
 struct arguments {
-    unsigned int widthvalue = 100;
+    unsigned int widthvalue = 1024;
     bool encode = true;
     bool adaptive = false;
     bool model = false;
@@ -27,6 +34,11 @@ struct arguments {
 
 };
 
+/**
+ * zpracuje argumenty do struktury argumentů
+ * @param args
+ * @return
+ */
 arguments getArguments(vector<string> args) {
     arguments res;
     res.help = false;
@@ -72,13 +84,18 @@ int main(int argc, char **argv) {
     arguments args = getArguments(std::vector<string>(argv, argv + argc));
 
     if (args.help) {
-        cout << "TODO HELP" << endl;
+        cout << "Komprimace pomocí hoffmanova kodovani:" << endl;
+        cout << "-h :help" << endl;
+        cout << "-h static :staticke kodovani" << endl;
+        cout << "-h static :adaptivni kodovani" << endl;
+        cout << "-m :aktivuje differencialni model" << endl;
+        cout << "-m :aktivuje differencialni model" << endl;
         return 0;
     }
 
     try {
         if (args.adaptive) {
-            adaptiveHoffman(args.inputFile, args.outputFile, args.encode, args.model, args.widthvalue);
+            adaptiveHoffman(args.inputFile, args.outputFile, args.encode, args.model, (unsigned int)args.widthvalue);
         } else {
             hoffman(args.inputFile, args.outputFile, args.encode, args.model);
         }

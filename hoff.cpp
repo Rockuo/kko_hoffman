@@ -1,6 +1,8 @@
-//
-// Created by rockuo on 29.04.19.
-//
+/**
+ * Richard Bureš (xbures29)
+ * Implementace statickeho hofmanova kodovani
+ */
+
 
 #include <iostream>
 #include <iomanip>
@@ -17,8 +19,8 @@
 using namespace std;
 
 /**
+ * Podmínka jestli jít při vkládání uzlu ve strome vlevo nebo vpravo
  * @param root
- * @param leaf
  * @return
  */
 bool shouldPlaceLeft(Node *root) {
@@ -29,6 +31,12 @@ bool shouldPlaceLeft(Node *root) {
     );
 }
 
+/**
+ * Podmínka jestli při vkládání uzlu jít dolu stromem, nebo nový uzel vleput nad aktuální root
+ * @param root
+ * @param leaf
+ * @return
+ */
 bool shouldExtendTree(Node *root, Node *leaf) {
     return root->leaf || // root je list (nemělo by to být třeba ošetřovat, ale tak kdyby náhodou), nebo
            root->weight < leaf->weight || // nový list je větší rovno aktuálnímu podstromu, nebo
@@ -39,16 +47,27 @@ bool shouldExtendTree(Node *root, Node *leaf) {
 
 }
 
-
+/**
+ * Přidá list do stromu
+ * @param root
+ * @param leaf
+ * @return
+ */
 Node *treeAdd(Node *root, Node *leaf) {
     Node *newRoot = root;
+    // strom má 0 prvků
     if (root->left == nullptr && !root->leaf) {
         root->left = leaf;
         root->weight = leaf->weight;
-    } else if (root->right == nullptr && !root->leaf) {
+
+    }
+    // strom má 1 prvek
+    else if (root->right == nullptr && !root->leaf) {
         root->right = leaf;
         root->weight = root->weight + leaf->weight;
-    } else if (shouldExtendTree(root, leaf)) {
+    }
+    // umistění nad
+    else if (shouldExtendTree(root, leaf)) {
         newRoot = new Node;
         newRoot->leaf = false;
         newRoot->left = root;
@@ -67,7 +86,12 @@ Node *treeAdd(Node *root, Node *leaf) {
     return newRoot;
 }
 
-
+/**
+ * Převede strom na mapuc [char->jeho kód]
+ * @param root
+ * @param currentPath
+ * @param result
+ */
 void getCodeMap(Node *root, vector<bool> *currentPath, map<unsigned char, vector<bool>> *result) {
     if (root->leaf) {
         (*result)[root->value] = (*currentPath);
@@ -87,7 +111,14 @@ void getCodeMap(Node *root, vector<bool> *currentPath, map<unsigned char, vector
     }
 }
 
-void fillTree(Node *root, vector<bool> *code, unsigned char c,unsigned int index) {
+/**
+ * Uloží list obsahem "c" na cestu stromem určenou "code"
+ * @param root
+ * @param code
+ * @param c
+ * @param index
+ */
+void fillTree(Node *root, vector<bool> *code, unsigned char c, unsigned int index) {
     if (code->size() == (index + 1u)) // příští iteraci by byl konec
     {
         if ((*code)[index]) { // go right
@@ -97,7 +128,7 @@ void fillTree(Node *root, vector<bool> *code, unsigned char c,unsigned int index
         }
     } else {
         if (root->leaf) {
-            throw invalid_argument("Nevalidní enkodovaný soubor"); //todo
+            throw invalid_argument("Nevalidní enkodovaný soubor");
         }
         if ((*code)[index]) { // go right
             if (root->right == nullptr) {
@@ -114,6 +145,11 @@ void fillTree(Node *root, vector<bool> *code, unsigned char c,unsigned int index
 
 }
 
+/**
+ * Převede maování (char->kód) na strom
+ * @param codeMap
+ * @return
+ */
 Node *getTree(map<unsigned char, vector<bool>> *codeMap) {
     Node *root = createEmptyNode();
     for (pair<unsigned char const, vector<bool>> m: (*codeMap)) {
@@ -124,6 +160,11 @@ Node *getTree(map<unsigned char, vector<bool>> *codeMap) {
     return root;
 }
 
+/**
+ * Zístká strom z vah jednotlivých znaků
+ * @param ranks
+ * @return
+ */
 Node *getHoffmanTreeByRanks(map<unsigned char, int> *ranks) {
 
     map<int, vector<unsigned char>> reverseRanks;
@@ -148,7 +189,12 @@ Node *getHoffmanTreeByRanks(map<unsigned char, int> *ranks) {
     return root;
 }
 
-
+/**
+ * vygeneruje strom z obsahu kodovaneho souboru
+ * @param content
+ * @param modelEnabled
+ * @return
+ */
 Node *getHoffmanTree(string *content, bool modelEnabled) {
     Model *model = createModel(modelEnabled);
 
@@ -168,6 +214,11 @@ Node *getHoffmanTree(string *content, bool modelEnabled) {
     return getHoffmanTreeByRanks(&ranks);
 }
 
+/**
+ * Uložé celé mapování (char->code) do bitstreamu
+ * @param bits
+ * @param codeMap
+ */
 void pushCodeMap(Bits *bits, map<unsigned char, vector<bool>> *codeMap) {
     vector<bool> currentCode;
     for (unsigned int i = 0; i < 256; i++) {
@@ -183,6 +234,11 @@ void pushCodeMap(Bits *bits, map<unsigned char, vector<bool>> *codeMap) {
     }
 }
 
+/**
+ * Načte mapování (char->code) z bit streamu
+ * @param bits
+ * @return
+ */
 map<unsigned char, vector<bool>> *popCodeMap(Bits *bits) {
     auto *codeMap = new map<unsigned char, vector<bool>>;
     for (unsigned int i = 0; i < 256; i++) {
@@ -200,7 +256,9 @@ map<unsigned char, vector<bool>> *popCodeMap(Bits *bits) {
 }
 
 /**
- *
+ * Zakoduje řetězec statiským hofmanovym kodováním a vráti jeho bitstream
+ * @param contentPtr
+ * @param modelEnabled
  * @return
  */
 Bits *hoffmanEncode(string *contentPtr, bool modelEnabled) {
@@ -218,7 +276,7 @@ Bits *hoffmanEncode(string *contentPtr, bool modelEnabled) {
     pushCodeMap(bits, codeMap);
 
     for (const unsigned char c_n: (*contentPtr)) {
-        unsigned char c =model->getModifiedValue(c_n);
+        unsigned char c = model->getModifiedValue(c_n);
         pushCode(bits, &((*codeMap)[c]));
     }
 
@@ -230,10 +288,12 @@ Bits *hoffmanEncode(string *contentPtr, bool modelEnabled) {
 
 
 /**
- *
+ * Dekoduje bit stream ískaný statickým hofmanovým kodováním
+ * @param bits
+ * @param modelEnabled
  * @return
  */
-string hoffmanDecode(Bits *bits, bool modelEnabled) { //todo return pointer OR print directly
+string hoffmanDecode(Bits *bits, bool modelEnabled) {
     stringstream ss;
 
     Model *model = createModel(modelEnabled);
@@ -268,6 +328,13 @@ string hoffmanDecode(Bits *bits, bool modelEnabled) { //todo return pointer OR p
     return ss.str();
 }
 
+/**
+ * Kmprimuje/dekomprimuje soubor statiským hoff kodovanim
+ * @param inputFileName
+ * @param outputFileName
+ * @param encode
+ * @param modelEnabled
+ */
 void hoffman(const string &inputFileName, const string &outputFileName, bool encode, bool modelEnabled) {
     ifstream inFile;
 
@@ -284,6 +351,8 @@ void hoffman(const string &inputFileName, const string &outputFileName, bool enc
     inFile.close();
 
     std::ofstream out(outputFileName);
+
+    // code/decode
     if (encode) {
         Bits *encoded = hoffmanEncode(&content, modelEnabled);
         out << saveBits(encoded);
